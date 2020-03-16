@@ -48,13 +48,32 @@ connection.connect(function(err) {
     var query = "SELECT item_name, department, price, stock FROM inventory WHERE ?"
       connection.query(query, {department: "Instruments"}, function(err, res) {
           if (err) throw err;
+            inquirer
+                .prompt([
+                    {
+                        name: "choice",
+                        type: "list",
+                        choices: function() {
+                            var productArray = [];
+                            for (var i = 0; i < res.length; i++) {
+                                productArray.push("Product: " + res[i].item_name + " || Department: " + res[i].department + " || Price: " + res[i].price + " || Stock: " + res[i].stock);
+                            }
+                            return productArray;
+                        },
+                        message: "What product would you like to buy?"
+                    }
+                ]).then(function(answer) {
+                    var chosenProduct;
+                    for (var i = 0; i < res.length; i++) {
+                        if ("Product: " + res[i].item_name + " || Department: " + res[i].department + " || Price: " + res[i].price + " || Stock: " + res[i].stock === answer.choice) {
+                            chosenItem = res[i];
+                            console.log(chosenItem);
+                        }
+                    }
+                })
 
 
 
-          
-          for (var i = 0; i < res.length; i++) {
-              console.log("Product: " + res[i].item_name + " || Department: " + res[i].department + " || Price: " + res[i].price + " || Stock: " + res[i].stock);
-          }
 
       })
   }
