@@ -67,9 +67,32 @@ connection.connect(function(err) {
                     for (var i = 0; i < res.length; i++) {
                         if ("Product: " + res[i].item_name + " || Department: " + res[i].department + " || Price: " + res[i].price + " || Stock: " + res[i].stock === answer.choice) {
                             chosenItem = res[i];
-                            console.log(chosenItem);
                         }
                     }
+                    if (chosenItem.stock === 0) {
+                        console.log("Sorry, that item is sold out.");
+                        start();
+                    } else {
+                        chosenItem.stock--;
+                        connection.query(
+                            "UPDATE inventory SET ? WHERE ?",
+                            [
+                                {
+                                    stock: chosenItem.stock
+                                },
+                                {
+                                    item_Name: chosenItem.item_name
+                                }
+                            ],
+                            function(error) {
+                                if (error) throw error;
+                                console.log("The " + chosenItem.item_name + " stock has been reduced to " + chosenItem.stock + ".");
+                                start();
+                            }
+                        )
+                    }
+
+
                 })
 
 
