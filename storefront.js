@@ -32,8 +32,8 @@ connection.connect(function(err) {
       })
       .then(function(answer) {
         // based on their answer, show department inventory or exit
-        if (answer.departmentSelect === "Instruments" || "Furniture" || "Technology") {
-          showInventory();
+        if (answer.departmentSelect === "Instruments") {
+          showIns();
         }
         else if(answer.departmentSelect === "Top Sales") {
             showSales();
@@ -44,11 +44,15 @@ connection.connect(function(err) {
       });
   }
 
-  function showInventory () {
+  function showIns () {
     var query = "SELECT item_name, department, price, stock FROM inventory WHERE ?"
-      connection.query(query, {department: answer.departmentSelect}, function(err, results) {
+      connection.query(query, {department: "Instruments"}, function(err, res) {
           if (err) throw err;
-          for (var i = 0; i < results.length; i++) {
+
+
+
+          
+          for (var i = 0; i < res.length; i++) {
               console.log("Product: " + res[i].item_name + " || Department: " + res[i].department + " || Price: " + res[i].price + " || Stock: " + res[i].stock);
           }
 
