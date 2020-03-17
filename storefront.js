@@ -10,7 +10,7 @@ var connection = mysql.createConnection({
     port: 3306,
     user: "root",
     password: "thurisaz1020",
-    database: "storefront_DB"
+    database: "bamazon"
 });
 
 // Connect to mysql server and database
