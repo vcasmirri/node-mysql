@@ -44,73 +44,84 @@ connection.connect(function(err) {
 //       });
 //   }
 
-  function start () {
-    var query = "SELECT item_id, product_name, price, stock_quantity FROM products";
-      connection.query(query, function(err, res) {
-          if (err) throw err;
-            inquirer
-                .prompt([
-                    {
-                        name: "choice",
-                        type: "list",
-                        choices: function() {
-                            var productArray = [];
-                            for (var i = 0; i < res.length; i++) {
-                                productArray.push("Product ID: " + res[i].item_id + " || Product: " + res[i].product_name + " || Price: " + res[i].price);
-                            }
-                            return productArray;
-                        },
-                        message: "Choose from the following products."
-                    },
-                    {
-                        name: "id",
-                        type: "input",
-                        message: "Enter the ID of the product you would like to buy."
-                    },
-                    {
-                        name: "quantity",
-                        type: "input",
-                        message: "Enter the number of units of this product you would like to buy."
+function start () {
+    inquirer
+        .prompt({
+            name: "storefront",
+            type: "confirm",
+            message: "Would you like to enter the store?"
+        }).then(function(answer) {
+            if (answer.storefront) {
+                shop();
+            } else {
+                console.log("Thanks for stopping by!");
+                connection.end();
+            }
+        })
+}
+
+
+function shop () {
+var query = "SELECT item_id, product_name, price, stock_quantity FROM products";
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+        console.log("\nWelcome! These are the products currently available in our catalog.\n");
+        for (var i = 0; i < res.length; i++) {
+        console.log("Product ID: " + res[i].item_id + " || Product: " + res[i].product_name + " || Price: " + res[i].price);
+        };
+        console.log("\n");
+        inquirer
+            .prompt([
+                {
+                    name: "id",
+                    type: "input",
+                    message: "Enter the ID of the product you would like to buy."
+                },
+                {
+                    name: "quantity",
+                    type: "input",
+                    message: "Enter the number of units of this product you would like to buy."
+                }
+            ]).then(function(answer) {
+                var chosenItem;
+                
+                for (var i = 0; i < res.length; i++) {
+                    if (res[i].item_id == answer.id) {
+                        chosenItem = res[i];
                     }
-                ]).then(function(answer) {
-                    var chosenItem;
-                    for (var i = 0; i < res.length; i++) {
-                        if ("Product ID: " + res[i].item_id + " || Product: " + res[i].product_name + " || Price: " + res[i].price === answer.choice) {
-                            chosenItem = res[i];
+                }
+                if (chosenItem.stock_quantity === 0 || answer.quantity > chosenItem.stock_quantity) {
+                    console.log("Sorry, that item is sold out or you are ordering more units than are available.");
+                    start();
+                } else {
+                    // console.log("This is the stock currently: " + chosenItem.stock_quantity);
+                    var stockLeft = chosenItem.stock_quantity - answer.quantity;
+                    // console.log("This is the amount of stock left: " + stockLeft);
+                    var orderTotal = answer.quantity * chosenItem.price;
+                    console.log("\nOrder successful! Product: " + chosenItem.product_name + " || Quantity: " + answer.quantity + " || Final Price: $" + orderTotal);
+                    connection.query(
+                        "UPDATE products SET ? WHERE ?",
+                        [
+                            {
+                                stock_quantity: stockLeft
+                            },
+                            {
+                                product_name: chosenItem.product_name
+                            }
+                        ],
+                        function(error) {
+                            if (error) throw error;
+                            // console.log("The " + chosenItem.product_name + " stock has been reduced to " + stockLeft + ".");
+                            start();
                         }
-                    }
-                    if (chosenItem.stock_quantity === 0 || answer.quantity > chosenItem.stock_quantity) {
-                        console.log("Sorry, that item is sold out.");
-                        start();
-                    } else {
-                        console.log("This is the stock currently: " + chosenItem.stock_quantity);
-                        var stockLeft = chosenItem.stock_quantity - answer.quantity;
-                        console.log("This is the amount of stock left: " + stockLeft);
-                        var orderTotal = answer.quantity * chosenItem.price;
-                        console.log("Your final order amount is " + orderTotal)
-                        connection.query(
-                            "UPDATE products SET ? WHERE ?",
-                            [
-                                {
-                                    stock_quantity: stockLeft
-                                },
-                                {
-                                    product_name: chosenItem.product_name
-                                }
-                            ],
-                            function(error) {
-                                if (error) throw error;
-                                console.log("The " + chosenItem.product_name + " stock has been reduced to " + chosenItem.stock_quantity + ".");
-                                start();
-                            }
-                        )
-                    }
+                    )
+                }
 
 
-                })
+            })
 
 
 
 
-      })
-  }
+    })
+}
