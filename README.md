@@ -1,7 +1,4 @@
-# node-mysql
-A CLI app demonstrating basic e-commerce functionality using Node.js and MySQL.
-
-# LIRI Node App
+# Bamazon (CLI Storefront)
 ---
 ### Description / Requirements
 
