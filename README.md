@@ -8,7 +8,7 @@ This application uses the command-line interface to demonstrate basic e-commerce
 
 ### Demonstration
 
-See a short demonstration of how the app works [here](https://drive.google.com/file/d/171O_y2AIyS4BKCo5GJDt4s56zRvJJN-Z/view)!
+See a short demonstration of how the app works [here](https://drive.google.com/file/d/1RCTgtIRdPGrd3RbEITmhfPrMxrETofwG/view)!
 
 ---
 ### Technologies
